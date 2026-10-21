@@ -1,14 +1,17 @@
-# samples/ — định dạng file dùng chung
+# samples/
 
-File mẫu viết tay, dùng để cả nhóm code song song. Khi pipeline thật chạy được thì thay bằng file thật, giữ nguyên tên trường.
+File mẫu để cả nhóm thống nhất định dạng. Khi pipeline thật chạy được thì thay bằng file thật, giữ nguyên tên trường.
 
-| File | Ai tạo | Ai đọc | Nội dung |
+| File | Ai tạo | Ai dùng | Nội dung |
 |---|---|---|---|
-| spec.yaml | A | B/C (dựng đồ thị khai báo, đối chiếu) | Pipeline khai báo: bước, bảng vào/ra, expect |
-| events.jsonl | A (run.py ghi) | B (thu bằng chứng) | Mỗi dòng một sự kiện START/COMPLETE của bước, có rows + sha256 |
-| evidence.json | B | C (dựng lineage thực tế, đối chiếu) | Gom bằng chứng của 1 run: SQL, schema, rows, hash |
-| findings.json | C | D (giao diện duyệt, báo cáo) | Danh sách sai lệch, risk, bằng chứng trỏ về file |
-| ground_truth.json | A (inject.py ghi) | E (đánh giá) | Lỗi đã tiêm vào từng run, dùng tính precision/recall |
+| spec.yaml | A | B, C | pipeline khai báo: các bước, bảng vào/ra, schema, expect |
+| events.jsonl | A (run.py) | B | sự kiện START/COMPLETE của từng bước, có rows, content_hash, schema |
+| evidence.json | B | C | bằng chứng của một run: SQL, schema, số dòng, hash |
+| findings.json | C | D | các sai lệch tìm được, mức rủi ro, bằng chứng |
+| ground_truth.json | A (inject.py) | E | lỗi đã tiêm vào từng run, dùng để tính precision/recall |
 
-Giá trị `risk`: low | medium | high. Giá trị `status`: needs_review | auto_closed | confirmed | dismissed.
-Các loại lỗi (`fault` / `type`) tạm thống nhất: drop_rows, duplicate_rows, undocumented_step, schema_change, hash_mismatch.
+- `risk`: low, medium, high
+- `status`: needs_review, auto_closed, confirmed, dismissed
+- loại lỗi tạm thống nhất: drop_rows, duplicate_rows, undocumented_step, schema_change, hash_mismatch
+- `content_hash` là tổng hash từng dòng của bảng nên không phụ thuộc thứ tự dòng, không phải SHA-256 của file
+- ground_truth.json là đáp án, auditor không được đọc

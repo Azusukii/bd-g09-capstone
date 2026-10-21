@@ -1,4 +1,4 @@
-# Lineage khai báo của pipeline "orders" (cái mà nhóm CHO LÀ pipeline đang làm)
+# Lineage khai báo của pipeline orders
 pipeline: orders
 version: 1
 tables:
@@ -10,16 +10,22 @@ steps:
     outputs: [staging_orders]
     sql: steps/stage_orders.sql
     transform: "chọn cột cần dùng, bỏ dòng thiếu khóa o_orderkey"
+    schema:
+      staging_orders: {o_orderkey: BIGINT, o_custkey: BIGINT, o_totalprice: DOUBLE}
     expect: "rows(staging_orders) <= rows(raw_orders)"
   - id: stage_lineitem
     inputs: [raw_lineitem]
     outputs: [staging_lineitem]
     sql: steps/stage_lineitem.sql
     transform: "chọn cột cần dùng, bỏ dòng thiếu khóa l_orderkey"
+    schema:
+      staging_lineitem: {l_orderkey: BIGINT, l_extendedprice: DOUBLE}
     expect: "rows(staging_lineitem) <= rows(raw_lineitem)"
   - id: totals
     inputs: [staging_orders, staging_lineitem]
     outputs: [order_totals]
     sql: steps/totals.sql
     transform: "join orders-lineitem, tổng l_extendedprice theo từng đơn"
+    schema:
+      order_totals: {o_orderkey: BIGINT, total_price: DOUBLE}
     expect: "rows(order_totals) == distinct(staging_orders.o_orderkey)"
