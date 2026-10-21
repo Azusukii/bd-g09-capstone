@@ -1,0 +1,25 @@
+# Lineage khai báo của pipeline "orders" (cái mà nhóm CHO LÀ pipeline đang làm)
+pipeline: orders
+version: 1
+tables:
+  raw_orders:       {source: tpch.orders}
+  raw_lineitem:     {source: tpch.lineitem}
+steps:
+  - id: stage_orders
+    inputs: [raw_orders]
+    outputs: [staging_orders]
+    sql: steps/stage_orders.sql
+    transform: "chọn cột cần dùng, bỏ dòng thiếu khóa o_orderkey"
+    expect: "rows(staging_orders) <= rows(raw_orders)"
+  - id: stage_lineitem
+    inputs: [raw_lineitem]
+    outputs: [staging_lineitem]
+    sql: steps/stage_lineitem.sql
+    transform: "chọn cột cần dùng, bỏ dòng thiếu khóa l_orderkey"
+    expect: "rows(staging_lineitem) <= rows(raw_lineitem)"
+  - id: totals
+    inputs: [staging_orders, staging_lineitem]
+    outputs: [order_totals]
+    sql: steps/totals.sql
+    transform: "join orders-lineitem, tổng l_extendedprice theo từng đơn"
+    expect: "rows(order_totals) == distinct(staging_orders.o_orderkey)"

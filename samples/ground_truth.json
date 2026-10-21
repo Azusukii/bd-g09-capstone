@@ -1,0 +1,6 @@
+[
+  {"run_id": "r0041", "fault": "none"},
+  {"run_id": "r0042", "fault": "drop_rows", "step": "totals", "params": {"ratio": 0.01}},
+  {"run_id": "r0043", "fault": "undocumented_step", "step": "after:stage_orders", "params": {"action": "update o_totalprice"}},
+  {"run_id": "r0044", "fault": "schema_change", "step": "stage_lineitem", "params": {"column": "l_extendedprice", "from": "DOUBLE", "to": "VARCHAR"}}
+]

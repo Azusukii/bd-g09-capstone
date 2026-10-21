@@ -1,0 +1,29 @@
+{
+  "run_id": "r0042",
+  "pipeline": "orders",
+  "collected_at": "2026-10-21T03:01:00Z",
+  "steps": [
+    {
+      "step": "stage_orders",
+      "sql_file": "runs/r0042/steps/stage_orders.sql",
+      "inputs":  [{"name": "raw_orders", "rows": 15000, "schema": {"o_orderkey": "BIGINT", "o_custkey": "BIGINT", "o_totalprice": "DOUBLE"}}],
+      "outputs": [{"name": "staging_orders", "rows": 15000, "sha256": "3f9a1c07b2e4d581", "schema": {"o_orderkey": "BIGINT", "o_custkey": "BIGINT", "o_totalprice": "DOUBLE"}}],
+      "duration_s": 2.1
+    },
+    {
+      "step": "stage_lineitem",
+      "sql_file": "runs/r0042/steps/stage_lineitem.sql",
+      "inputs":  [{"name": "raw_lineitem", "rows": 60175, "schema": {"l_orderkey": "BIGINT", "l_extendedprice": "DOUBLE"}}],
+      "outputs": [{"name": "staging_lineitem", "rows": 60175, "sha256": "8d2e5a90c61f47b3", "schema": {"l_orderkey": "BIGINT", "l_extendedprice": "DOUBLE"}}],
+      "duration_s": 3.8
+    },
+    {
+      "step": "totals",
+      "sql_file": "runs/r0042/steps/totals.sql",
+      "inputs":  [{"name": "staging_orders", "rows": 15000}, {"name": "staging_lineitem", "rows": 60175}],
+      "outputs": [{"name": "order_totals", "rows": 14850, "sha256": "c47b0e1d95a3f268", "schema": {"o_orderkey": "BIGINT", "total_price": "DOUBLE"}}],
+      "duration_s": 1.9
+    }
+  ],
+  "log_excerpt": ["03:00:09 totals: wrote 14850 rows to order_totals"]
+}

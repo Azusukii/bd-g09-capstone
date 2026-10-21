@@ -1,0 +1,20 @@
+{
+  "run_id": "r0042",
+  "audited_at": "2026-10-21T03:01:05Z",
+  "findings": [
+    {
+      "id": "r0042-F01",
+      "type": "expectation_violated",
+      "step": "totals",
+      "detail": "order_totals có 14850 dòng, spec yêu cầu bằng số đơn khác nhau ở staging_orders (15000). Thiếu 150 đơn (1.0%).",
+      "evidence": [
+        {"file": "evidence.json", "path": "steps[2].outputs[0].rows", "value": 14850},
+        {"file": "evidence.json", "path": "steps[0].outputs[0].rows", "value": 15000},
+        {"file": "spec.yaml", "path": "steps[2].expect"}
+      ],
+      "risk": "high",
+      "status": "needs_review"
+    }
+  ],
+  "summary": {"total": 1, "high": 1, "medium": 0, "low": 0, "auto_closed": 0, "needs_review": 1}
+}
