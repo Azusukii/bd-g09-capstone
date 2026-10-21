@@ -1,0 +1,20 @@
+# Python env
+.venv/
+__pycache__/
+*.pyc
+
+# generated data
+runs/
+*.parquet
+*.duckdb
+*.duckdb.wal
+
+# system files / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# keys and secret, DO NOT COMMIT
+*.key
+*.pem
+.env
