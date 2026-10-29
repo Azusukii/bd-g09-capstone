@@ -1,7 +1,7 @@
 # Tiêm lỗi vào pipeline và ghi đáp án vào runs/ground_truth.json
 # Sinh nhiều run một lúc:
 #   python pipelines/orders/inject.py --n-clean 20 --n-fault 40 --sf 0.01 --seed 1
-# Các loại lỗi: drop_rows, duplicate_rows, undocumented_step, schema_change
+# Các loại lỗi: drop_rows, duplicate_rows, undocumented_step, schema_change, hash_mismatch
 import argparse
 import json
 import random
@@ -17,6 +17,7 @@ FAULTS = {
     "duplicate_rows": {"step": "stage_orders", "params": {"ratio": 0.01}},
     "undocumented_step": {"step": "stage_orders", "params": {}},
     "schema_change": {"step": "stage_lineitem", "params": {"column": "l_extendedprice", "to": "VARCHAR"}},
+    "hash_mismatch": {"step": "stage_orders", "params": {"ratio": 0.01, "column": "o_totalprice"}},
 }
 
 
@@ -60,6 +61,21 @@ def adhoc(fault, step_id):
         "inputs": ["staging_orders"],
         "outputs": ["staging_orders"],
     }]
+
+
+def tamper(con, fault, table):
+    # sửa giá trị của bảng SAU khi bước đã báo COMPLETE, số dòng giữ nguyên.
+    # hash trong event là hash gốc, hash tính lại từ file parquet sẽ khác.
+    if not fault or fault["fault"] != "hash_mismatch":
+        return
+    params = fault["params"]
+    cols = [c[0] for c in con.execute(f'DESCRIBE "{table}"').fetchall()]
+    col = params["column"]
+    if col not in cols:
+        raise SystemExit(f"hash_mismatch: bảng {table} không có cột {col}")
+    cut = int(params["ratio"] * 10000)
+    con.execute(f'UPDATE "{table}" SET "{col}" = "{col}" * 1.01 '
+                f'WHERE hash("{cols[0]}") % 10000 < {cut}')
 
 
 def record_truth(run_id, fault):

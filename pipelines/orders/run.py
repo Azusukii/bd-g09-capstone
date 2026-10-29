@@ -76,6 +76,7 @@ def run_pipeline(run_id, sf=0.01, fault=None):
     log(f"run {run_id} start, sf={sf:g}")
 
     saved = []
+    tamper_tables = []
     for step in spec["steps"]:
         name = step["id"]
         inputs = [stats(con, t) for t in step["inputs"]]
@@ -93,6 +94,8 @@ def run_pipeline(run_id, sf=0.01, fault=None):
         for o in outputs:
             log(f"{name}: wrote {o['rows']} rows to {o['name']}")
             saved.append(o["name"])
+        if fault and fault["fault"] == "hash_mismatch" and fault["step"] == name:
+            tamper_tables = step["outputs"]  # sửa sau, lúc lưu parquet
 
         # bước không có trong spec (chỉ khi tiêm lỗi undocumented_step)
         for op in inject.adhoc(fault, name):
@@ -105,6 +108,9 @@ def run_pipeline(run_id, sf=0.01, fault=None):
             emit(step=op["name"], event="COMPLETE", inputs=op_in, outputs=op_out,
                  duration_s=round(time.time() - start, 2))
             log(f"{op['name']}: ran extra sql on {', '.join(op['outputs'])}")
+
+    for t in tamper_tables:
+        inject.tamper(con, fault, t)
 
     for t in saved:
         path = (run_dir / "tables" / (t + ".parquet")).as_posix()
