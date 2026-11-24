@@ -21,6 +21,9 @@ FAULTS = {
 }
 
 
+RATIOS = [0.005, 0.01, 0.05]
+
+
 def build_fault(name, step=None, ratio=None):
     params = dict(FAULTS[name]["params"])
     if ratio is not None and "ratio" in params:
@@ -107,7 +110,9 @@ def main():
     names = list(FAULTS)
     plan = [None] * args.n_clean
     for i in range(args.n_fault):
-        plan.append(build_fault(names[i % len(names)], ratio=rng.choice([0.005, 0.01, 0.05])))
+        # xoay vòng 3 mức tỉ lệ trong từng loại lỗi để số run mỗi mức gần bằng nhau
+        ratio = RATIOS[(i // len(names)) % len(RATIOS)]
+        plan.append(build_fault(names[i % len(names)], ratio=ratio))
     rng.shuffle(plan)
 
     for i, fault in enumerate(plan, start=args.start):

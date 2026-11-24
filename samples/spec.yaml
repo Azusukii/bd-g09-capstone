@@ -1,4 +1,6 @@
 # Lineage khai báo của pipeline orders
+# columns: nguồn giá trị của từng cột đầu ra, khai báo tay, độc lập với câu SQL.
+#   Chỉ ghi cột tạo ra giá trị, không ghi cột chỉ dùng để lọc hoặc nối.
 pipeline: orders
 version: 1
 tables:
@@ -13,6 +15,11 @@ steps:
     schema:
       staging_orders: {o_orderkey: BIGINT, o_custkey: BIGINT, o_totalprice: DOUBLE}
     expect: "rows(staging_orders) <= rows(raw_orders)"
+    columns:
+      staging_orders:
+        o_orderkey: [raw_orders.o_orderkey]
+        o_custkey: [raw_orders.o_custkey]
+        o_totalprice: [raw_orders.o_totalprice]
   - id: stage_lineitem
     inputs: [raw_lineitem]
     outputs: [staging_lineitem]
@@ -21,6 +28,10 @@ steps:
     schema:
       staging_lineitem: {l_orderkey: BIGINT, l_extendedprice: DOUBLE}
     expect: "rows(staging_lineitem) <= rows(raw_lineitem)"
+    columns:
+      staging_lineitem:
+        l_orderkey: [raw_lineitem.l_orderkey]
+        l_extendedprice: [raw_lineitem.l_extendedprice]
   - id: totals
     inputs: [staging_orders, staging_lineitem]
     outputs: [order_totals]
@@ -29,3 +40,7 @@ steps:
     schema:
       order_totals: {o_orderkey: BIGINT, total_price: DOUBLE}
     expect: "rows(order_totals) == distinct(staging_orders.o_orderkey)"
+    columns:
+      order_totals:
+        o_orderkey: [staging_orders.o_orderkey]
+        total_price: [staging_lineitem.l_extendedprice]

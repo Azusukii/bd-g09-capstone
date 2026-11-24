@@ -2,28 +2,165 @@
   "run_id": "r0042",
   "pipeline": "orders",
   "collected_at": "2026-10-21T03:01:00Z",
+  "note": "File mẫu. Số liệu minh họa. content_hash và rows ở outputs là giá trị pipeline tự báo trong events.jsonl; recomputed là giá trị auditor tự tính lại từ file parquet; profile do auditor tự tính.",
   "steps": [
     {
       "step": "stage_orders",
       "sql_file": "runs/r0042/steps/stage_orders.sql",
-      "inputs":  [{"name": "raw_orders", "rows": 15000, "schema": {"o_orderkey": "BIGINT", "o_custkey": "BIGINT", "o_totalprice": "DOUBLE"}}],
-      "outputs": [{"name": "staging_orders", "rows": 15000, "content_hash": "3f9a1c07b2e4d581", "schema": {"o_orderkey": "BIGINT", "o_custkey": "BIGINT", "o_totalprice": "DOUBLE"}}],
-      "duration_s": 2.1
+      "inputs": [
+        {
+          "name": "raw_orders",
+          "rows": 15000,
+          "schema": {
+            "o_orderkey": "BIGINT",
+            "o_custkey": "BIGINT",
+            "o_totalprice": "DOUBLE"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "staging_orders",
+          "rows": 15000,
+          "content_hash": "3f9a1c07b2e4d581",
+          "schema": {
+            "o_orderkey": "BIGINT",
+            "o_custkey": "BIGINT",
+            "o_totalprice": "DOUBLE"
+          },
+          "recomputed": {
+            "source": "tables/staging_orders.parquet",
+            "rows": 15000,
+            "content_hash": "3f9a1c07b2e4d581"
+          },
+          "profile": {
+            "o_orderkey": {
+              "null_count": 0,
+              "distinct_count": 15000,
+              "min": 1,
+              "max": 60000
+            },
+            "o_custkey": {
+              "null_count": 0,
+              "distinct_count": 1000,
+              "min": 1,
+              "max": 1499
+            },
+            "o_totalprice": {
+              "null_count": 0,
+              "distinct_count": 14996,
+              "min": 874.89,
+              "max": 466001.28,
+              "sum": 2127396900.0
+            }
+          }
+        }
+      ],
+      "duration_s": 2.1,
+      "sql_sha256_reported": "71784cef0404183409bb5881470b8ad836ec9221163e493d7ec1f97316843712",
+      "sql_sha256_recomputed": "71784cef0404183409bb5881470b8ad836ec9221163e493d7ec1f97316843712",
+      "sql_verified": true
     },
     {
       "step": "stage_lineitem",
       "sql_file": "runs/r0042/steps/stage_lineitem.sql",
-      "inputs":  [{"name": "raw_lineitem", "rows": 60175, "schema": {"l_orderkey": "BIGINT", "l_extendedprice": "DOUBLE"}}],
-      "outputs": [{"name": "staging_lineitem", "rows": 60175, "content_hash": "8d2e5a90c61f47b3", "schema": {"l_orderkey": "BIGINT", "l_extendedprice": "DOUBLE"}}],
-      "duration_s": 3.8
+      "inputs": [
+        {
+          "name": "raw_lineitem",
+          "rows": 60175,
+          "schema": {
+            "l_orderkey": "BIGINT",
+            "l_extendedprice": "DOUBLE"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "staging_lineitem",
+          "rows": 60175,
+          "content_hash": "8d2e5a90c61f47b3",
+          "schema": {
+            "l_orderkey": "BIGINT",
+            "l_extendedprice": "DOUBLE"
+          },
+          "recomputed": {
+            "source": "tables/staging_lineitem.parquet",
+            "rows": 60175,
+            "content_hash": "8d2e5a90c61f47b3"
+          },
+          "profile": {
+            "l_orderkey": {
+              "null_count": 0,
+              "distinct_count": 15000,
+              "min": 1,
+              "max": 60000
+            },
+            "l_extendedprice": {
+              "null_count": 0,
+              "distinct_count": 35921,
+              "min": 904.0,
+              "max": 94949.5,
+              "sum": 2152189600.0
+            }
+          }
+        }
+      ],
+      "duration_s": 3.8,
+      "sql_sha256_reported": "f852b1195d7a44cf416cdd13f0b4a17ef8af0e3c54e8955eed4bb0b35423860b",
+      "sql_sha256_recomputed": "f852b1195d7a44cf416cdd13f0b4a17ef8af0e3c54e8955eed4bb0b35423860b",
+      "sql_verified": true
     },
     {
       "step": "totals",
       "sql_file": "runs/r0042/steps/totals.sql",
-      "inputs":  [{"name": "staging_orders", "rows": 15000}, {"name": "staging_lineitem", "rows": 60175}],
-      "outputs": [{"name": "order_totals", "rows": 14850, "content_hash": "c47b0e1d95a3f268", "schema": {"o_orderkey": "BIGINT", "total_price": "DOUBLE"}}],
-      "duration_s": 1.9
+      "inputs": [
+        {
+          "name": "staging_orders",
+          "rows": 15000
+        },
+        {
+          "name": "staging_lineitem",
+          "rows": 60175
+        }
+      ],
+      "outputs": [
+        {
+          "name": "order_totals",
+          "rows": 14850,
+          "content_hash": "c47b0e1d95a3f268",
+          "schema": {
+            "o_orderkey": "BIGINT",
+            "total_price": "DOUBLE"
+          },
+          "recomputed": {
+            "source": "tables/order_totals.parquet",
+            "rows": 14850,
+            "content_hash": "c47b0e1d95a3f268"
+          },
+          "profile": {
+            "o_orderkey": {
+              "null_count": 0,
+              "distinct_count": 14850,
+              "min": 1,
+              "max": 60000
+            },
+            "total_price": {
+              "null_count": 0,
+              "distinct_count": 14850,
+              "min": 904.0,
+              "max": 470000.0,
+              "sum": 2130670000.0
+            }
+          }
+        }
+      ],
+      "duration_s": 1.9,
+      "sql_sha256_reported": "d2b176ac673f4a76e402a082a4147159f80150eccb6b3687f77f87effa978cff",
+      "sql_sha256_recomputed": "d2b176ac673f4a76e402a082a4147159f80150eccb6b3687f77f87effa978cff",
+      "sql_verified": true
     }
   ],
-  "log_excerpt": ["03:00:09 totals: wrote 14850 rows to order_totals"]
+  "log_excerpt": [
+    "03:00:09 totals: wrote 14850 rows to order_totals"
+  ]
 }

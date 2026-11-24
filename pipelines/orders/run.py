@@ -2,6 +2,7 @@
 #   python pipelines/orders/run.py --run-id r0001 --sf 0.01
 #   python pipelines/orders/run.py --run-id r0002 --sf 0.01 --fault drop_rows
 import argparse
+import hashlib
 import json
 import shutil
 import time
@@ -83,13 +84,17 @@ def run_pipeline(run_id, sf=0.01, fault=None):
         emit(step=name, event="START", inputs=step["inputs"], outputs=step["outputs"])
 
         start = time.time()
-        con.execute((HERE / step["sql"]).read_text(encoding="utf-8"))
-        shutil.copy(HERE / step["sql"], run_dir / "steps" / Path(step["sql"]).name)
+        sql_bytes = (HERE / step["sql"]).read_bytes()
+        con.execute(sql_bytes.decode("utf-8"))
+        # lưu đúng file đã chạy, hash theo byte để auditor tính lại và so được
+        (run_dir / "steps" / Path(step["sql"]).name).write_bytes(sql_bytes)
         if fault:
             inject.silent(con, fault, name, step["outputs"])
 
         outputs = [stats(con, t, with_schema=True) for t in step["outputs"]]
         emit(step=name, event="COMPLETE", inputs=inputs, outputs=outputs,
+             sql_file="steps/" + Path(step["sql"]).name,
+             sql_sha256=hashlib.sha256(sql_bytes).hexdigest(),
              duration_s=round(time.time() - start, 2))
         for o in outputs:
             log(f"{name}: wrote {o['rows']} rows to {o['name']}")
@@ -102,10 +107,13 @@ def run_pipeline(run_id, sf=0.01, fault=None):
             op_in = [stats(con, t) for t in op["inputs"]]
             emit(step=op["name"], event="START", inputs=op["inputs"], outputs=op["outputs"])
             start = time.time()
+            op_bytes = (op["sql"] + "\n").encode("utf-8")
             con.execute(op["sql"])
-            (run_dir / "steps" / (op["name"] + ".sql")).write_text(op["sql"] + "\n", encoding="utf-8")
+            (run_dir / "steps" / (op["name"] + ".sql")).write_bytes(op_bytes)
             op_out = [stats(con, t, with_schema=True) for t in op["outputs"]]
             emit(step=op["name"], event="COMPLETE", inputs=op_in, outputs=op_out,
+                 sql_file="steps/" + op["name"] + ".sql",
+                 sql_sha256=hashlib.sha256(op_bytes).hexdigest(),
                  duration_s=round(time.time() - start, 2))
             log(f"{op['name']}: ran extra sql on {', '.join(op['outputs'])}")
 

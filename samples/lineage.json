@@ -1,0 +1,84 @@
+{
+  "run_id": "r0042",
+  "built_at": "2026-10-21T03:01:02Z",
+  "note": "File mẫu. Cạnh bảng lấy từ events.jsonl. Cạnh cột lấy từ sqlglot, chỉ khi sql_verified là true. Bước không đủ bằng chứng ghi unknown.",
+  "steps": [
+    {
+      "step": "stage_orders",
+      "table_lineage": "events",
+      "column_lineage": "sqlglot",
+      "sql_verified": true
+    },
+    {
+      "step": "stage_lineitem",
+      "table_lineage": "events",
+      "column_lineage": "sqlglot",
+      "sql_verified": true
+    },
+    {
+      "step": "totals",
+      "table_lineage": "events",
+      "column_lineage": "sqlglot",
+      "sql_verified": true
+    }
+  ],
+  "table_edges": [
+    {
+      "from": "raw_orders",
+      "to": "staging_orders",
+      "step": "stage_orders"
+    },
+    {
+      "from": "raw_lineitem",
+      "to": "staging_lineitem",
+      "step": "stage_lineitem"
+    },
+    {
+      "from": "staging_orders",
+      "to": "order_totals",
+      "step": "totals"
+    },
+    {
+      "from": "staging_lineitem",
+      "to": "order_totals",
+      "step": "totals"
+    }
+  ],
+  "column_edges": [
+    {
+      "from": "raw_orders.o_orderkey",
+      "to": "staging_orders.o_orderkey",
+      "step": "stage_orders"
+    },
+    {
+      "from": "raw_orders.o_custkey",
+      "to": "staging_orders.o_custkey",
+      "step": "stage_orders"
+    },
+    {
+      "from": "raw_orders.o_totalprice",
+      "to": "staging_orders.o_totalprice",
+      "step": "stage_orders"
+    },
+    {
+      "from": "raw_lineitem.l_orderkey",
+      "to": "staging_lineitem.l_orderkey",
+      "step": "stage_lineitem"
+    },
+    {
+      "from": "raw_lineitem.l_extendedprice",
+      "to": "staging_lineitem.l_extendedprice",
+      "step": "stage_lineitem"
+    },
+    {
+      "from": "staging_orders.o_orderkey",
+      "to": "order_totals.o_orderkey",
+      "step": "totals"
+    },
+    {
+      "from": "staging_lineitem.l_extendedprice",
+      "to": "order_totals.total_price",
+      "step": "totals"
+    }
+  ]
+}
