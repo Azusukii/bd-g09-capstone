@@ -1,84 +1,197 @@
 {
-  "run_id": "r0042",
-  "built_at": "2026-10-21T03:01:02Z",
-  "note": "File mẫu. Cạnh bảng lấy từ events.jsonl. Cạnh cột lấy từ sqlglot, chỉ khi sql_verified là true. Bước không đủ bằng chứng ghi unknown.",
-  "steps": [
+  "run_id": "r0001",
+  "pipeline": "orders",
+  "built_at": "2026-11-25T15:02:00.412359",
+  "nodes": [
     {
-      "step": "stage_orders",
-      "table_lineage": "events",
-      "column_lineage": "sqlglot",
-      "sql_verified": true
+      "id": "raw_orders",
+      "type": "table",
+      "table": "raw_orders",
+      "step": null
     },
     {
-      "step": "stage_lineitem",
-      "table_lineage": "events",
-      "column_lineage": "sqlglot",
-      "sql_verified": true
-    },
-    {
-      "step": "totals",
-      "table_lineage": "events",
-      "column_lineage": "sqlglot",
-      "sql_verified": true
-    }
-  ],
-  "table_edges": [
-    {
-      "from": "raw_orders",
-      "to": "staging_orders",
+      "id": "staging_orders",
+      "type": "table",
+      "table": "staging_orders",
       "step": "stage_orders"
     },
     {
-      "from": "raw_lineitem",
-      "to": "staging_lineitem",
+      "id": "staging_orders.o_orderkey",
+      "type": "column",
+      "table": "staging_orders",
+      "step": "stage_orders"
+    },
+    {
+      "id": "staging_orders.o_custkey",
+      "type": "column",
+      "table": "staging_orders",
+      "step": "stage_orders"
+    },
+    {
+      "id": "staging_orders.o_totalprice",
+      "type": "column",
+      "table": "staging_orders",
+      "step": "stage_orders"
+    },
+    {
+      "id": "raw_orders.o_orderkey",
+      "type": "column",
+      "table": "raw_orders",
+      "step": null
+    },
+    {
+      "id": "raw_orders.o_custkey",
+      "type": "column",
+      "table": "raw_orders",
+      "step": null
+    },
+    {
+      "id": "raw_orders.o_totalprice",
+      "type": "column",
+      "table": "raw_orders",
+      "step": null
+    },
+    {
+      "id": "raw_lineitem",
+      "type": "table",
+      "table": "raw_lineitem",
+      "step": null
+    },
+    {
+      "id": "staging_lineitem",
+      "type": "table",
+      "table": "staging_lineitem",
       "step": "stage_lineitem"
     },
     {
-      "from": "staging_orders",
-      "to": "order_totals",
+      "id": "staging_lineitem.l_orderkey",
+      "type": "column",
+      "table": "staging_lineitem",
+      "step": "stage_lineitem"
+    },
+    {
+      "id": "staging_lineitem.l_extendedprice",
+      "type": "column",
+      "table": "staging_lineitem",
+      "step": "stage_lineitem"
+    },
+    {
+      "id": "raw_lineitem.l_orderkey",
+      "type": "column",
+      "table": "raw_lineitem",
+      "step": null
+    },
+    {
+      "id": "raw_lineitem.l_extendedprice",
+      "type": "column",
+      "table": "raw_lineitem",
+      "step": null
+    },
+    {
+      "id": "order_totals",
+      "type": "table",
+      "table": "order_totals",
       "step": "totals"
     },
     {
-      "from": "staging_lineitem",
-      "to": "order_totals",
+      "id": "order_totals.o_orderkey",
+      "type": "column",
+      "table": "order_totals",
+      "step": "totals"
+    },
+    {
+      "id": "order_totals.total_price",
+      "type": "column",
+      "table": "order_totals",
       "step": "totals"
     }
   ],
-  "column_edges": [
+  "edges": [
+    {
+      "from": "raw_orders",
+      "to": "staging_orders",
+      "step": "stage_orders",
+      "level": "table"
+    },
     {
       "from": "raw_orders.o_orderkey",
       "to": "staging_orders.o_orderkey",
-      "step": "stage_orders"
+      "step": "stage_orders",
+      "level": "column"
     },
     {
       "from": "raw_orders.o_custkey",
       "to": "staging_orders.o_custkey",
-      "step": "stage_orders"
+      "step": "stage_orders",
+      "level": "column"
     },
     {
       "from": "raw_orders.o_totalprice",
       "to": "staging_orders.o_totalprice",
-      "step": "stage_orders"
+      "step": "stage_orders",
+      "level": "column"
+    },
+    {
+      "from": "raw_lineitem",
+      "to": "staging_lineitem",
+      "step": "stage_lineitem",
+      "level": "table"
     },
     {
       "from": "raw_lineitem.l_orderkey",
       "to": "staging_lineitem.l_orderkey",
-      "step": "stage_lineitem"
+      "step": "stage_lineitem",
+      "level": "column"
     },
     {
       "from": "raw_lineitem.l_extendedprice",
       "to": "staging_lineitem.l_extendedprice",
-      "step": "stage_lineitem"
+      "step": "stage_lineitem",
+      "level": "column"
+    },
+    {
+      "from": "staging_orders",
+      "to": "order_totals",
+      "step": "totals",
+      "level": "table"
+    },
+    {
+      "from": "staging_lineitem",
+      "to": "order_totals",
+      "step": "totals",
+      "level": "table"
     },
     {
       "from": "staging_orders.o_orderkey",
       "to": "order_totals.o_orderkey",
-      "step": "totals"
+      "step": "totals",
+      "level": "column"
     },
     {
       "from": "staging_lineitem.l_extendedprice",
       "to": "order_totals.total_price",
-      "step": "totals"
+      "step": "totals",
+      "level": "column"
+    }
+  ],
+  "steps": [
+    {
+      "step": "stage_orders",
+      "column_lineage": "known",
+      "reason": null,
+      "unknown_columns": {}
+    },
+    {
+      "step": "stage_lineitem",
+      "column_lineage": "known",
+      "reason": null,
+      "unknown_columns": {}
+    },
+    {
+      "step": "totals",
+      "column_lineage": "known",
+      "reason": null,
+      "unknown_columns": {}
     }
   ]
 }
